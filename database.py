@@ -1,7 +1,9 @@
 import sqlite3
 
+DB_PATH= "instance/classifier.db"
+
 def init_db():
-    conn = sqlite3.connect("classifier.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""

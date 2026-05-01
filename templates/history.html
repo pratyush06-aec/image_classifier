@@ -1,0 +1,21 @@
+<div class="container mt-5">
+  <h2>Prediction History</h2>
+
+  <table class="table table-bordered">
+    <tr>
+      <th>ID</th>
+      <th>Image</th>
+      <th>Prediction</th>
+    </tr>
+
+    {% for row in data %}
+    <tr>
+      <td>{{ row[0] }}</td>
+      <td><img src="{{ row[1] }}" width="100"></td>
+      <td>{{ row[2] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <a href="/" class="btn btn-primary">Back</a>
+</div>

@@ -1,3 +1,4 @@
+from PIL.ImagePalette import random
 from flask import Flask, render_template, request
 # from flask_sqlalchemy import SQLAlchemy 
 import os, sqlite3
@@ -5,7 +6,7 @@ from model import classify_image
 from werkzeug.utils import secure_filename
 import uuid
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 # app.config['SQLALCHEMY_DATABASE_URI']= "sqlite:///classifier.db"
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
 # db= SQLAlchemy(app)
@@ -15,6 +16,26 @@ DB_PATH= "instance/classifier.db"
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+os.makedirs(app.instance_path, exist_ok=True)
+
+def init_db():
+    db_path = os.path.join(app.instance_path, "classifier.db")
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS predictions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename TEXT,
+        prediction TEXT,
+        confidence REAL
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
 
 @app.route("/")
 def home():
@@ -29,20 +50,32 @@ def predict():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
 
-    prediction = classify_image(filepath)
+    prediction, confidence = classify_image(filepath)
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute(
-        "INSERT INTO predictions (image_path, prediction) VALUES (?, ?)",
-        (filepath, prediction)
+        "INSERT INTO predictions (filename, prediction, confidence) VALUES (?, ?, ?)",
+        (filename, prediction, confidence)
     )
 
     conn.commit()
     conn.close()
 
-    return render_template("result.html", prediction=prediction, image=filepath)
+    return render_template("result.html", prediction=prediction, confidence=confidence, image=filepath)
+
+@app.route("/history")
+def history():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM predictions ORDER BY id DESC")
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("history.html", data=data)
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)

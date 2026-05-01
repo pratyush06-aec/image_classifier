@@ -1,9 +1,20 @@
-import random
+from transformers import pipeline
+from PIL import Image
 
-classes = ["Cat", "Dog", "Car", "Tree"]
+classifier = pipeline(
+    "image-classification",
+    model="google/vit-base-patch16-224"
+)
 
 def classify_image(image_path):
-    prediction = random.choice(classes)
-    confidence = round(random.uniform(70, 99), 2)
-    return prediction, confidence
+    image = Image.open(image_path).convert("RGB")
+
+    results = classifier(image)
+
+    top_result = results[0]
+
+    label = top_result["label"]
+    confidence = round(top_result["score"] * 100, 2)
+
+    return label, confidence
 

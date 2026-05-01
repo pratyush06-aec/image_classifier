@@ -50,27 +50,28 @@ def predict():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
 
-    prediction, confidence = classify_image(filepath)
+    label, confidence = classify_image(filepath)
+    prediction_text = f"Prediction: {label}, Confidence: {confidence}%"
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute(
         "INSERT INTO predictions (filename, prediction, confidence) VALUES (?, ?, ?)",
-        (filename, prediction, confidence)
+        (filename, label, confidence)
     )
 
     conn.commit()
     conn.close()
 
-    return render_template("result.html", prediction=prediction, confidence=confidence, image=filepath)
+    return render_template("result.html", prediction=label, confidence=confidence, image=filepath)
 
 @app.route("/history")
 def history():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM predictions ORDER BY id DESC")
+    cursor.execute("SELECT * FROM predictions ORDER BY id ASC")
     data = cursor.fetchall()
 
     conn.close()

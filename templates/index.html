@@ -27,11 +27,13 @@
       crossorigin="anonymous"
     ></script>
 
-    <form action="/predict" method="post" enctype="multipart/form-data">
+    <div class="container mt-5 text-center">
+      <form action="/predict" method="post" enctype="multipart/form-data">
       <input type="file" name="image" required>
       <button type="submit">Predict</button>
-    </form>
-    <a href="/history" class="btn btn-secondary mt-3">View History</a>
+      </form>
+      <a href="/history" class="btn btn-secondary mt-3">View History</a>  
+    </div>
 
     <!-- Option 2: Separate Popper and Bootstrap JS -->
     <!--

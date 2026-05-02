@@ -11,7 +11,7 @@ app = Flask(__name__, instance_relative_config=True)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
 # db= SQLAlchemy(app)
 
-DB_PATH= "instance/classifier.db"
+from database import insert_prediction, fetch_history
 
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -51,31 +51,13 @@ def predict():
     file.save(filepath)
 
     label, confidence = classify_image(filepath)
-    prediction_text = f"Prediction: {label}, Confidence: {confidence}%"
-
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO predictions (filename, prediction, confidence) VALUES (?, ?, ?)",
-        (filename, label, confidence)
-    )
-
-    conn.commit()
-    conn.close()
+    insert_prediction(filename, label, confidence)
 
     return render_template("result.html", prediction=label, confidence=confidence, image=filepath)
 
 @app.route("/history")
 def history():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM predictions ORDER BY id ASC")
-    data = cursor.fetchall()
-
-    conn.close()
-
+    data = fetch_history()
     return render_template("history.html", data=data)
 
 if __name__ == "__main__":

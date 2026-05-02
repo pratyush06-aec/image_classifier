@@ -3,7 +3,8 @@ from PIL import Image
 
 classifier = pipeline(
     "image-classification",
-    model="google/vit-base-patch16-224"
+    model="google/vit-base-patch16-224",
+    device= -1
 )
 
 def classify_image(image_path):

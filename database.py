@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
     # try:
@@ -13,6 +14,8 @@ def get_connection():
     # except Exception as e:
     #     print("❌ Connection error:", e)
     return psycopg2.connect(
+        DATABASE_URL,
+        sslmode='require'
         host=os.getenv("DB_HOST"),
         database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),

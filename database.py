@@ -15,7 +15,7 @@ def get_connection():
     #     print("❌ Connection error:", e)
     return psycopg2.connect(
         DATABASE_URL,
-        sslmode='require'
+        sslmode='require',
         host=os.getenv("DB_HOST"),
         database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),

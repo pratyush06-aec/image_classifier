@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="VisionAI Classifier Logo" width="180" />
+  <img src="assets/logo.png" alt="VisionAI Classifier Logo" width="180" />
 </p>
 
 <h1 align="center">🔬 VisionAI — Image Classifier</h1>
@@ -202,7 +202,7 @@ image_classifier/
 ├── .env                    # Environment variables (DB credentials) — NOT committed to git
 ├── .gitignore              # Git exclusion rules
 ├── .gitattributes          # Git line-ending normalization config
-├── logo.png                # Project logo
+├── assets/logo.png                # Project logo
 ├── README.md               # This documentation file
 │
 ├── templates/              # Jinja2 HTML templates

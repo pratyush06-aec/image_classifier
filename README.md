@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/HuggingFace-Transformers-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" />
   <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" />
   <img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" />
+  <img src="https://img.shields.io/badge/Cloud%20Run-Deployed-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" />
 </p>
 
 ---
@@ -29,6 +30,7 @@
 - [Installation & Setup](#-installation--setup)
 - [Environment Variables](#-environment-variables)
 - [Database Setup](#-database-setup)
+- [Deployment](#-deployment)
 - [Running the Application](#-running-the-application)
 - [API Routes](#-api-routes)
 - [How It Works — End-to-End Flow](#-how-it-works--end-to-end-flow)
@@ -423,6 +425,37 @@ This download happens **only once** and is cached in `~/.cache/huggingface/`.
 
 ---
 
+## ☁️ Deployment
+
+The application is deployed on **Google Cloud Run**, taking advantage of serverless container deployment.
+
+**Live URL:** [https://image-classifier-369865779033.us-central1.run.app](https://image-classifier-369865779033.us-central1.run.app)
+
+### Deployment Steps (Google Cloud Run)
+
+To deploy the project to Google Cloud Run, follow these steps:
+
+1. **Modify `Procfile`**:
+   Ensure `gunicorn` binds to the Cloud Run `$PORT` environment variable by updating your `Procfile` to:
+   ```
+   web: gunicorn --bind :$PORT app:app --timeout 120 --workers 1
+   ```
+
+2. **Deploy using Google Cloud CLI**:
+   Run the following command from the project root. Make sure to substitute the database variables with your actual Supabase credentials since the `.env` file is git-ignored and not uploaded:
+   ```bash
+   gcloud run deploy image-classifier \
+     --source . \
+     --project <YOUR_GCP_PROJECT> \
+     --region us-central1 \
+     --memory 2Gi \
+     --allow-unauthenticated \
+     --set-env-vars "DB_HOST=<HOST>,DB_NAME=<NAME>,DB_USER=<USER>,DB_PASSWORD=<PASSWORD>,DB_PORT=<PORT>,DATABASE_URL=<URL>"
+   ```
+   > **Note:** We allocate **2Gi** of memory because loading the PyTorch library and the ViT model weights requires significant RAM. The default 512MB allocation will result in an Out-Of-Memory (OOM) error.
+
+---
+
 ## 🛤️ API Routes
 
 | Method | Route | Description | Input | Output |
@@ -640,8 +673,8 @@ Integrate Flask-Login for user accounts, allowing each user to have their own pr
 
 ### 7. Deploy to Production
 Consider deploying with:
-- **Gunicorn** as the WSGI server (instead of Flask's built-in dev server)
-- **Google Cloud Run** for serverless container deployment
+- **Gunicorn** as the WSGI server (already configured in `Procfile`)
+- **Google Cloud Run** for serverless container deployment (Current approach)
 - **Railway** or **Render** for quick PaaS deployment
 
 ---
